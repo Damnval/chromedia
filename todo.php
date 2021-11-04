@@ -34,17 +34,6 @@ include("auth.php");
     }  
  }  
 
- if(isset($_GET["delete"]))  
- {  
-    $where = [ 
-      'id' => $_GET["task_id"]  
-    ];
-
-    if($data->delete("tasks", $where)) {  
-        header("location:todo.php");  
-    }  
- }  
-
  ?>  
  <!DOCTYPE html>  
  <html>  
