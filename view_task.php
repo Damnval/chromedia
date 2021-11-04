@@ -25,8 +25,13 @@
         url: "http://localhost/chromedia/v1/tasks/" + task_id,
         dataType: "json",
         success: function (result, status, xhr) {
-
-           $('input[name=task]').val((result[0].task));
+          console.log(result)
+          if(result.length){
+            $('input[name=task]').val((result[0].task));
+          } else {
+            alert('Huli ka balbon! Bawal magic. Peace 2x. :)')
+            window.location.href = "http://localhost/chromedia/";
+          }
         },
         error: function (xhr, status, error) {
           alert("Result: " + status + " " + error + " " + xhr.status + " " + xhr.statusText)
