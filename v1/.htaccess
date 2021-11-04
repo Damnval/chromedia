@@ -4,3 +4,5 @@ DirectoryIndex index.htm index.html index.php
 RewriteEngine On # Turn on the rewriting engine
 RewriteRule ^tasks/?$ tasks.php [NC,L]
 RewriteRule ^tasks/([0-9]+)/?$ tasks.php?id=$1 [NC,L]
+
+RewriteRule ^login/?$ login.php [NC,L]

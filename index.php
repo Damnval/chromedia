@@ -3,50 +3,73 @@
 <head>
 <meta charset="utf-8">
 <title>Login</title>
-<link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />  
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>  
 </head>
 
 <body>
-<?php
-require('database.php');
-$data = new Databases;  
-session_start();
-// If form submitted, insert values into the database.
-if (isset($_POST['username'])){
-  // removes backslashes
-	$username = stripslashes($_REQUEST['username']);
-  //escapes special characters in a string
-	$username = mysqli_real_escape_string($data->con,$username);
-	$password = stripslashes($_REQUEST['password']);
-	$password = mysqli_real_escape_string($data->con,$password);
-	//Checking is user existing in the database or not
-  $query = "SELECT * FROM `users` WHERE username='$username'
-              and password='".md5($password)."'";
-	$result = mysqli_query($data->con,$query) or die(mysql_error());
-	$rows = mysqli_num_rows($result);
-	$user_data = mysqli_fetch_assoc($result);
-  if($rows==1){
-      $_SESSION['username'] = $username;
-      $_SESSION['user_id'] = $user_data['id'];
-      // Redirect user to todo.php
-    header("Location: todo.php");
-    }else{
-	echo "<div class='form'>
-	<h3>Username/password is incorrect.</h3>
-	<br/>Click here to <a href='/chromedia/'>Login</a></div>";
-	}
-    }else{
-?>
-<div class="form">
-    <h1>Log In</h1>
-    <form action="" method="post" name="login">
-      <input type="text" name="username" placeholder="Username" required />
-      <input type="password" name="password" placeholder="Password" required />
-      <input name="submit" type="submit" value="Login" />
-    </form>
+  <div class="container">
+    <div class="col-md-3"></div>
+    <div class="col-md-6">
+
+    <div class="form">
+      <h1>Log In</h1>
+      <form action="" name="login" id="loginForm">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" name="username" class="form-control" id="username" placeholder="username">
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" name="password" class="form-control" id="password" placeholder="password">
+        </div>
+        <button type="button" id="login" class="btn btn-primary">Submit</button>
+      </form>
+    </div>
+
+    </div>
+  <div class="col-md-3"></div>
 </div>
 
-<?php } ?>
+<script>
 
-</body>
-</html>
+  $(document).ready(function(){  
+
+    $('#login').on('click', function() {
+
+       /**
+       * HTTP that will get specific tasks
+       */
+      $.ajax({
+        type: "POST",
+        url: "http://localhost/chromedia/v1/login/",
+        data: {
+          username: $("input[name=username]").val(),
+          password: $("input[name=password]").val(),			
+        },
+        dataType: "json",
+        success: function (result, status, xhr) {
+          console.log(result)
+          if(result.status == 200){
+            window.location.href = "http://localhost/chromedia/todo.php";
+          } else {
+            document.getElementById("loginForm").reset();
+            alert(result.status_message)
+          }
+          
+        },
+        error: function (xhr, status, error) {
+          alert("Result: " + status + " " + error + " " + xhr.status + " " + xhr.statusText)
+        }
+      });
+
+    });
+
+    });  
+    
+</script>
+
+<?php  
+  include("layout/footer.php");
+?>

@@ -19,11 +19,12 @@ include("layout/header.php");
     <br />  
     <div class="table-responsive">  
       <table class="table table-bordered" id="tbDetails">  
+        
         <tr>  
-          <td width="55%">Task</td>  
-          <td width="15%">Edit</td>  
-          <td width="15%">Delete</td>  
-          <td width="15%">View</td> 
+          <th width="55%">Task</th>  
+          <th width="15%">Edit</th>  
+          <th width="15%">Delete</th>  
+          <th width="15%">View</th> 
         </tr>  
         <tbody id="todo-list">
 
@@ -31,7 +32,7 @@ include("layout/header.php");
       </table>  
     </div>  
   </div>  
-  
+
   <script>  
 
     $(document).ready(function(){  
