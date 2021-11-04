@@ -100,10 +100,11 @@ function get_task($id=0)
 function insert_task()
 {
   global $connection;
+  $data =($_REQUEST);
 
-  $data = json_decode(file_get_contents('php://input'), true);
-  $task=$data["task"];
-  echo $query="INSERT INTO tasks SET task='". $task."'";
+  $query = "INSERT INTO tasks (";
+  $query .= implode(",", array_keys($data)) . ') VALUES (';  
+  $query .= "'" . implode("','", array_values($data)) . "')";
   
   if(mysqli_query($connection, $query))
   {
@@ -122,7 +123,6 @@ function insert_task()
   header('Content-Type: application/json');
   echo json_encode($response);
 }
-
 
 /**
  * Api that will update a tasks

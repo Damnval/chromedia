@@ -3,20 +3,7 @@
  include 'database.php';  
 //include auth.php file on all secure pages
 include("auth.php");
- $data = new Databases;  
-
- if(isset($_POST["submit"]))  
- {  
-    $insert_data = [
-        'task' => mysqli_real_escape_string($data->con, $_POST['task']),
-        'user_id' => $_SESSION['user_id'] 
-    ];  
-
-    if($data->insert('tasks', $insert_data))  
-    {  
-      header("location:todo.php"); 
-    }       
- }  
+$data = new Databases;
 
  if(isset($_POST["edit"]))  
  {  
@@ -85,9 +72,9 @@ include("auth.php");
               else {  
               ?>  
               <label>Todo Task</label>  
-              <input type="text" name="task" class="form-control" required/>  
+              <input type="text" name="task" id="task" class="form-control" required/>  
               <br />  
-              <input type="submit" name="submit" class="btn btn-info" value="Submit" />  
+              <input type="button" id="submit_task" name="submit" class="btn btn-info" value="Submit" />  
               <?php  
               }  
               ?>  
@@ -114,46 +101,73 @@ include("auth.php");
 
  $(document).ready(function(){  
 
-    $('#todo-list').on('click', '.delete', function(data){
-      if(confirm("Are you sure you want to delete this Task?"))  
-      {  
-        var task_id = data.target.id
-       
-        $.ajax({
-            url: 'http://localhost/chromedia/v1/tasks/' + task_id,
-            type: 'DELETE',
-            success: function(result) {
-              alert(result.status_message)
-            }
-        });
-        $(this).closest('tr').remove()
+  /**
+   * HTTP that will save new task
+   */
+  $('#submit_task').on('click', function() {
 
-      }  
-      else  
-      {  
-        return false;  
-      }  
-    })
+		var task = $('#task').val();
+    console.log(task);
+			$.ajax({
+				url: "http://localhost/chromedia/v1/tasks/",
+				type: "POST",
+				data: {
+					task: task,
+					user_id: <?php echo $_SESSION['user_id']; ?>,			
+				},
+				success: function(result){
+          alert(result.status_message)
+          window.location.href = "http://localhost/chromedia/todo.php";
+				}
+			});
+	});
 
-    $.ajax({
-      type: "GET",
-      url: "http://localhost/chromedia/v1/tasks",
-      dataType: "json",
-      success: function (result, status, xhr) {
+  /**
+   * HTTP that will delete task
+   */
+  $('#todo-list').on('click', '.delete', function(data){
+    if(confirm("Are you sure you want to delete this Task?"))  
+    {  
+      var task_id = data.target.id
+      
+      $.ajax({
+          url: 'http://localhost/chromedia/v1/tasks/' + task_id,
+          type: 'DELETE',
+          success: function(result) {
+            alert(result.status_message)
+          }
+      });
+      $(this).closest('tr').remove()
 
-        $.each(result, function (index, obj) { 
-          var row = '<tr><td> ' + obj.task + ' </td> ' +
-          ' + <td><a href="todo.php?edit=1&id=' + obj.id + '">Edit</a></td> ' +
-          ' + <td><a href="#" id="' + obj.id + '" class="delete">Delete</a></td> ' +
-          ' + <td><a href="view_task.php?id=' + obj.id + '">View</a></td>  </tr>';
-          $("#todo-list").append(row);
-        }); 
+    }  
+    else  
+    {  
+      return false;  
+    }  
+  })
 
-      },
-      error: function (xhr, status, error) {
-        alert("Result: " + status + " " + error + " " + xhr.status + " " + xhr.statusText)
-      }
-    });
+  /**
+   * HTTP that will get all tasks
+   */
+  $.ajax({
+    type: "GET",
+    url: "http://localhost/chromedia/v1/tasks",
+    dataType: "json",
+    success: function (result, status, xhr) {
+
+      $.each(result, function (index, obj) { 
+        var row = '<tr><td> ' + obj.task + ' </td> ' +
+        ' + <td><a href="todo.php?edit=1&id=' + obj.id + '">Edit</a></td> ' +
+        ' + <td><a href="#" id="' + obj.id + '" class="delete">Delete</a></td> ' +
+        ' + <td><a href="view_task.php?id=' + obj.id + '">View</a></td>  </tr>';
+        $("#todo-list").append(row);
+      });
+
+    },
+    error: function (xhr, status, error) {
+      alert("Result: " + status + " " + error + " " + xhr.status + " " + xhr.statusText)
+    }
+  });
 
  });  
  </script>  
