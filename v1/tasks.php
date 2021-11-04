@@ -1,5 +1,6 @@
 <?php
 
+session_start();
 // Connect to database
 include("connection.php");
 
@@ -53,15 +54,17 @@ break;
 function get_tasks()
 {
   global $connection;
-  $query="SELECT * FROM tasks";
-  $response=array();
-  $result=mysqli_query($connection, $query);
-  while($row=mysqli_fetch_array($result))
-  {
-    $response[]=$row;
-  }
+
+  $array = array();  
+  $query = "SELECT * FROM tasks WHERE user_id=". $_SESSION['user_id'] ."";  
+  $result = mysqli_query($connection, $query);  
+  while($row = mysqli_fetch_assoc($result))  
+  {  
+      $array[] = $row;  
+  }  
+  
   header('Content-Type: application/json');
-  echo json_encode($response);
+  echo json_encode($array);
 }
 
 /**
