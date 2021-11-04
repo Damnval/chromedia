@@ -96,7 +96,7 @@ include("auth.php");
               else {  
               ?>  
               <label>Todo Task</label>  
-              <input type="text" name="task" class="form-control" />  
+              <input type="text" name="task" class="form-control" required/>  
               <br />  
               <input type="submit" name="submit" class="btn btn-info" value="Submit" />  
               <?php  
