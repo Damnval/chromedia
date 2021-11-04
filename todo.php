@@ -1,27 +1,8 @@
 <?php  
- //todo.php  
- include 'database.php';  
+//todo.php
 //include auth.php file on all secure pages
 include("auth.php");
-$data = new Databases;
-
- if(isset($_POST["edit"]))  
- {  
-    $update_data =[ 
-      'task' =>  mysqli_real_escape_string($data->con, $_POST['task']),  
-    ];  
-        
-    $where_condition = [ 
-      'id' => $_POST["id"]  
-    ]; 
-
-    if($data->update("tasks", $update_data, $where_condition))  
-    {  
-      header("location:todo.php"); 
-    }  
- }  
-
- ?>  
+?>
  <!DOCTYPE html>  
  <html>  
     <head>  
@@ -47,37 +28,11 @@ $data = new Databases;
         <a href="logout.php">Logout</a>
         <br />  
         <form method="post">  
-            <?php  
-              if(isset($_GET["edit"]))  
-              {  
-                if(isset($_GET["id"]))  
-                {  
-                  $where = [
-                    'id' => $_GET["id"]  
-                  ];
-              
-                  $single_data = $data->select_where("tasks", $where);  
-                  foreach($single_data as $post)  
-                  {  
-            ?>  
-              <label>Task</label>  
-              <input type="text" name="task" value="<?php echo $post["task"]; ?>" class="form-control" />  
-              <br />  
-              <input type="hidden" name="id" value="<?php echo $post["id"]; ?>" />  
-              <input type="submit" name="edit" class="btn btn-info" value="Edit" />  
-            <?php  
-                    }  
-                  }  
-                }  
-              else {  
-              ?>  
-              <label>Todo Task</label>  
-              <input type="text" name="task" id="task" class="form-control" required/>  
-              <br />  
-              <input type="button" id="submit_task" name="submit" class="btn btn-info" value="Submit" />  
-              <?php  
-              }  
-              ?>  
+          <label>Todo Task</label>  
+          <input type="text" name="task" id="task" class="form-control" required/>  
+          <br />  
+          <input type="button" id="submit_task" name="submit" class="btn btn-info" value="Submit" />  
+          <input type="hidden" id="edit_task" name="edit" class="btn btn-info edit_task" value="Edit" /> 
         </form>  
         <br />  
         <div class="table-responsive">  
@@ -89,7 +44,7 @@ $data = new Databases;
               <td width="15%">View</td> 
             </tr>  
             <tbody id="todo-list">
-  
+
             </tbody>
           </table>  
         </div>  
@@ -101,13 +56,13 @@ $data = new Databases;
 
  $(document).ready(function(){  
 
+  var selectedTaskId = 0;
   /**
    * HTTP that will save new task
    */
   $('#submit_task').on('click', function() {
 
 		var task = $('#task').val();
-    console.log(task);
 			$.ajax({
 				url: "http://localhost/chromedia/v1/tasks/",
 				type: "POST",
@@ -121,6 +76,40 @@ $data = new Databases;
 				}
 			});
 	});
+
+  /**
+   * pre-set the selected task id and the task value what to changed
+   */
+  $('#tbDetails').on('click', '.edit', function (e) {
+
+    selectedTaskId = e.target.id;
+    var task = $(this).parent().parent().children(':nth-child(1)').text().trim();
+    // set the task to the selected task
+    $('input[name=task]').val(task);
+    // show edit task button
+    $('#edit_task').removeAttr("type").attr("type", "button");
+    // show submit task button on creating new tasks
+    $('#submit_task').removeAttr("type").attr("type", "hidden");
+  });
+
+  /**
+   * HTTP that will delete task
+   */
+  $(".edit_task").click(function(){
+    var task = $('#task').val();
+
+    $.ajax({
+        url: 'http://localhost/chromedia/v1/tasks/' + selectedTaskId,
+        type: 'PUT',
+        data: {
+					task: task,
+					user_id: <?php echo $_SESSION['user_id']; ?>,			
+				},
+        success: function(result) {
+          window.location.href = "http://localhost/chromedia/todo.php";
+        }
+    });
+  });
 
   /**
    * HTTP that will delete task
@@ -157,7 +146,7 @@ $data = new Databases;
 
       $.each(result, function (index, obj) { 
         var row = '<tr><td> ' + obj.task + ' </td> ' +
-        ' + <td><a href="todo.php?edit=1&id=' + obj.id + '">Edit</a></td> ' +
+        ' + <td><a href="#" id="' + obj.id + '" class="edit">Edit</a></td> ' +
         ' + <td><a href="#" id="' + obj.id + '" class="delete">Delete</a></td> ' +
         ' + <td><a href="view_task.php?id=' + obj.id + '">View</a></td>  </tr>';
         $("#todo-list").append(row);
@@ -170,4 +159,5 @@ $data = new Databases;
   });
 
  });  
- </script>  
+
+</script>

@@ -132,9 +132,17 @@ function insert_task()
 function update_task($id)
 {
   global $connection;
-  $post_vars = json_decode(file_get_contents("php://input"),true);
+  // $data = [];
+  // $data =($_REQUEST);
+
+  $put_data = file_get_contents("php://input");
+
+  parse_str($put_data, $post_vars);
+
+  // $post_vars = json_decode(file_get_contents("php://input"),true);
   $task=$post_vars["task"];
   $query="UPDATE tasks SET task='".$task."' WHERE id=".$id;
+  
   if(mysqli_query($connection, $query))
   {
     $response=array(
